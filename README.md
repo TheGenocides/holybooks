@@ -11,9 +11,8 @@ No instalation for now!
 # Usage
 
 ```python
-from hollybook import quran
-
 # To return a quran's verse/chapter(surah) and other info
+from hollybook import quran
 
 surah=quran.Surah.request(1) #'1' is the first chapter and request is for sync function to make it async replace request to async_request
 print(surah.name('eng')) #Only support arabic(ar) and english(eng)
@@ -21,8 +20,9 @@ print(surah.name('eng')) #Only support arabic(ar) and english(eng)
 
 
 # To return a bible verse's info
+from hollybook import bible
 
-bible_verses=hollybooks.Bible.request(
+bible_verses=bible.Bible.request(
     "2 Corinthians", chapter=4,
     starting_verse=16, ending_verse=18
 )  # this gets the info of 2 Corinthians 4:16-18
