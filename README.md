@@ -22,8 +22,8 @@ print(surah.name_mean())
 ```
 
 # API That I Use
-[Qur'an](https://alquran.cloud/api)
-Bible - Not available
+[Qur'an](https://alquran.cloud/api) \n
+Bible - Not available \n
 Torah - Not available
 
 # Contributing
