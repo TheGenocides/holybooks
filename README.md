@@ -1,5 +1,5 @@
 # hollybooks
-Hollybooks is an api wrapper consist with 3 api(s). Right now (6/25/2021) it only have 1 api. 
+An Api wrapper for extract info from 3 diffreant holly books. Right now (6/25/2021) it only have 1 api which connect to the quran api. My plan is to have 3 Api(s).
  
 # Installation 
 ```bash
