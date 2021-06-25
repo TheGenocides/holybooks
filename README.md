@@ -21,6 +21,11 @@ print(surah.name_mean())
 #return The Opener
 ```
 
+# API That I Use
+[Qur'an](https://alquran.cloud/api)
+Bible - Not available
+Torah - Not available
+
 # Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
