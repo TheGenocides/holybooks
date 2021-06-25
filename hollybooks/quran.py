@@ -1,3 +1,5 @@
+from typing import Union, Optional
+
 class ApiError(Exception):
     pass
 
@@ -101,13 +103,16 @@ class Surah:
 
     async def ayah_info(
         self,
-        ayah: int = 1,
-        *,
+        ayah: int = 1, *,
         text: bool = True,
         number_in_quran: bool = True,
         number_in_surah: bool = True,
         juz: bool = True,
         manzil: bool = True,
+		page: bool = True,
+		ruku: bool = True,
+		hizbquarter: bool = True,
+		sajda : bool = True
     ):
         if ayah <= 0:
             error = "Ayah must above the 0"
@@ -129,5 +134,90 @@ class Surah:
                 else None,
                 "juz": self.ayah[ayah]["juz"] if juz else None,
                 "manzil": self.ayah[ayah]["manzil"] if manzil else None,
+				"page": self.ayah[ayah]["page"] if text else None,
+                "ruku": self.ayah[ayah]["ruku"]
+                if number_in_quran
+                else None,
+                "hizbquarter": self.ayah[ayah]["hizbQuarter"]
+                if number_in_surah
+                else None,
+                "sajda": self.ayah[ayah]["sajda"] if juz else None
             }
             return data
+
+
+class Search:
+	def __init__(self, mention:str=None, *, surah:Optional[Union[str, int]]=None):
+		self.mention = mention
+		self.surah = surah
+	
+	@classmethod
+	async def async_request(cls, 
+						mention:str=None, *, 
+						surah:Optional[Union[str, int]]=None,
+						loop=None
+					):
+		
+		try:
+			import aiohttp
+		except ImportError:
+			raise ImportError(
+				"Please Install the aiohttp module if you want to make an async request."
+			)
+
+		self = cls(mention, surah=surah)
+		try:
+			async with aiohttp.ClientSession(loop=loop) as session:
+				async with session.get(
+					f"http://api.alquran.cloud/v1/search/{mention}/{surah}/en.pickthall"
+				) as resp:
+					self.request = await resp.json()
+		except aiohttp.client_exceptions.ContentTypeError:
+			error=f"Attempt to decode JSON with unexpected mimetype: Return code: None\nlink: http://api.alquran.cloud/v1/search/Abraham/1/en.pickthall"
+			raise ApiError(error)
+		
+		self.data = self.request["data"]
+		self.matches = self.data['matches']
+		if self.request["code"] > 202:
+			raise ApiError(
+				f"Api has an error, return code: {self.request['code']}.\n{self.request['data']}"
+			)
+
+		return self
+
+
+	@classmethod
+	def request(cls, 
+				mention:str=None, *, 
+				surah:Optional[Union[str, int]]=None
+			):
+
+		try:
+			import requests
+		except ImportError:
+			raise ImportError(
+		"Please Install the requests module if you want to make a sync request."
+		)
+
+		self = cls(mention, surah=surah)
+		self.request = requests.get(
+		f"http://api.alquran.cloud/v1/search/{mention}/{surah}/en.pickthall"
+		).json()
+		self.data = self.request["data"]
+		self.matches = self.data['matches']
+		if self.request["code"] > 202:
+			raise ApiError(
+			f"Api has an error, return code: {self.request['code']}.\n{self.request['data']}"
+			)
+		
+
+		return self
+	
+	def count(self):
+		return self.data['count']
+
+	def find(self):
+		data=[]
+		for num in range(self.data['count']):
+			data.append(self.matches[num]['text'])
+		return data
