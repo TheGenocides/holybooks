@@ -13,7 +13,7 @@ import hollybooks
 
 # To return a quran's verse/chapter(surah) and other info
 
-surah=hollybooks.quran.Surah(1) #1 is the first chapter
+surah=hollybooks.Surah.request(1) #1 is the first chapter
 print(surah.name('eng')) #Only support arabic(ar) and english(eng)
 #return al-fatihah
 
