@@ -1,15 +1,5 @@
 from typing import Union, Optional
-
-class ApiError(Exception):
-    pass
-
-
-class NumberError(Exception):
-    pass
-
-
-class WrongLang(Exception):
-    pass
+from .errors.errors import ApiError, NumberError, WrongLang
 
 
 class Surah:
@@ -102,17 +92,18 @@ class Surah:
         return data
 
     async def ayah_info(
-		self,
-        ayah: int = 1, *,
+        self,
+        ayah: int = 1,
+        *,
         text: bool = True,
         number_in_quran: bool = True,
-		number_in_surah: bool = True,
+        number_in_surah: bool = True,
         juz: bool = True,
         manzil: bool = True,
-		page: bool = True,
-		ruku: bool = True,
-		hizbquarter: bool = True,
-		sajda : bool = True
+        page: bool = True,
+        ruku: bool = True,
+        hizbquarter: bool = True,
+        sajda: bool = True,
     ):
         if ayah <= 0:
             error = "Ayah must above the 0"
@@ -134,100 +125,104 @@ class Surah:
                 else None,
                 "juz": self.ayah[ayah]["juz"] if juz else None,
                 "manzil": self.ayah[ayah]["manzil"] if manzil else None,
-				"page": self.ayah[ayah]["page"] if text else None,
-                "ruku": self.ayah[ayah]["ruku"]
-                if number_in_quran
-                else None,
+                "page": self.ayah[ayah]["page"] if text else None,
+                "ruku": self.ayah[ayah]["ruku"] if number_in_quran else None,
                 "hizbquarter": self.ayah[ayah]["hizbQuarter"]
                 if number_in_surah
                 else None,
-                "sajda": self.ayah[ayah]["sajda"] if juz else None
+                "sajda": self.ayah[ayah]["sajda"] if juz else None,
             }
             return data
 
 
 class Search:
-	def __init__(self, mention:str=None, *, surah:Optional[Union[str, int]]=None, request: int=None):
-		self.mention = mention
-		self.surah = surah
-		self.req = request
-	
-	@classmethod
-	async def async_request(
-		cls, 
-		mention:str=None, *, 
-		surah:Optional[Union[str, int]]=None,
-		request:int=None,
-		loop=None
-	):
-		try:
-			import aiohttp
-		except ImportError:
-			raise ImportError(
-				"Please Install the aiohttp module if you want to make an async request."
-			)
+    def __init__(
+        self,
+        mention: str = None,
+        *,
+        surah: Optional[Union[str, int]] = None,
+        request: int = None,
+    ):
+        self.mention = mention
+        self.surah = surah
+        self.req = request
 
+    @classmethod
+    async def async_request(
+        cls,
+        mention: str = None,
+        *,
+        surah: Optional[Union[str, int]] = None,
+        request: int = None,
+        loop=None,
+    ):
+        try:
+            import aiohttp
+        except ImportError:
+            raise ImportError(
+                "Please Install the aiohttp module if you want to make an async request."
+            )
 
-		self = cls(mention, surah=surah, request=request)
+        self = cls(mention, surah=surah, request=request)
 
-		try:
-			async with aiohttp.ClientSession(loop=loop) as session:
-				async with session.get(
-					f"http://api.alquran.cloud/v1/search/{mention}/{surah}/en.pickthall"
-				) as resp:
-					self.request = await resp.json()
-		except aiohttp.client_exceptions.ContentTypeError:
-			error=f"Attempt to decode JSON with unexpected mimetype: Return code: None\nlink: http://api.alquran.cloud/v1/search/{mention}/{surah}/en.pickthall"
-			raise ApiError(error)
-		
-		self.data = self.request["data"]
-		self.matches = self.data['matches']
-		if self.request["code"] > 202:
-			raise ApiError(
-				f"Api has an error, return code: {self.request['code']}.\n{self.request['data']}"
-			)
+        try:
+            async with aiohttp.ClientSession(loop=loop) as session:
+                async with session.get(
+                    f"http://api.alquran.cloud/v1/search/{mention}/{surah}/en.pickthall"
+                ) as resp:
+                    self.request = await resp.json()
+        except aiohttp.client_exceptions.ContentTypeError:
+            error = f"Attempt to decode JSON with unexpected mimetype: Return code: None\nlink: http://api.alquran.cloud/v1/search/{mention}/{surah}/en.pickthall"
+            raise ApiError(error)
 
-		return self
+        self.data = self.request["data"]
+        self.matches = self.data["matches"]
+        if self.request["code"] > 202:
+            raise ApiError(
+                f"Api has an error, return code: {self.request['code']}.\n{self.request['data']}"
+            )
 
-	@classmethod
-	def request(
-		cls, 
-		mention: str=None, *, 
-		surah: Optional[Union[str, int]]=None,
-		request: int = None
-	):
-		try:
-			import requests
-		except ImportError:
-			raise ImportError(
-		"Please Install the requests module if you want to make a sync request."
-		)
+        return self
 
-		self = cls(mention, surah=surah, request=request)
-		self.request = requests.get(
-		f"http://api.alquran.cloud/v1/search/{mention}/{surah}/en.pickthall"
-		).json()
-		self.data = self.request["data"]
-		self.matches = self.data['matches']
-		if self.request["code"] > 202:
-			raise ApiError(
-			f"Api has an error, return code: {self.request['code']}.\n{self.request['data']}"
-			)
-		
+    @classmethod
+    def request(
+        cls,
+        mention: str = None,
+        *,
+        surah: Optional[Union[str, int]] = None,
+        request: int = None,
+    ):
+        try:
+            import requests
+        except ImportError:
+            raise ImportError(
+                "Please Install the requests module if you want to make a sync request."
+            )
 
-		return self
-	
-	def count(self):
-		return self.request['data']['count']
+        self = cls(mention, surah=surah, request=request)
+        self.request = requests.get(
+            f"http://api.alquran.cloud/v1/search/{mention}/{surah}/en.pickthall"
+        ).json()
+        self.data = self.request["data"]
+        self.matches = self.data["matches"]
+        if self.request["code"] > 202:
+            raise ApiError(
+                f"Api has an error, return code: {self.request['code']}.\n{self.request['data']}"
+            )
 
-	def find(self):
-		data=[]
-		if self.req == None:
-			for num in range(self.data['count']):
-				data.append(self.matches[num]['text'])
-			return data
+        return self
 
-		else:	
-			for num in range(self.req):
-				data.append(self.matches[num]['text'])
-			return data
+    def count(self):
+        return self.request["data"]["count"]
+
+    def find(self):
+        data = []
+        if self.req == None:
+            for num in range(self.data["count"]):
+                data.append(self.matches[num]["text"])
+            return data
+
+        else:
+            for num in range(self.req):
+                data.append(self.matches[num]["text"])
+            return data
