@@ -1,4 +1,4 @@
-__all__ = ("ApiError", "NotFound", "BibleVerse", "Bible")
+__all__ = ("ApiError", "NotFound", "ChapterVerse", "Chapter")
 
 
 class ApiError(Exception):
@@ -21,7 +21,7 @@ def _build_citation(book: str, chapter: int, verse: str) -> str:
     return f"{book} {chapter}:{verse}"
 
 
-class BibleVerse:
+class ChapterVerse:
     def __init__(self, verse: dict) -> None:
         del verse["book_id"]
 
@@ -36,7 +36,7 @@ class BibleVerse:
         return _build_citation(self.book_name, self.chapter, self.verse)
 
 
-class Bible:
+class Chapter:
     def __init__(self, book: str) -> None:
         self.book = book
 
@@ -65,7 +65,7 @@ class Bible:
             )
 
         self.json = self.request.json()
-        self.verses = [BibleVerse(i) for i in self.json["verses"]]
+        self.verses = [ChapterVerse(i) for i in self.json["verses"]]
 
         return self
 
@@ -96,7 +96,7 @@ class Bible:
                 self.request = resp
                 self.json = await resp.json()
 
-        self.verses = [BibleVerse(i) for i in self.json["verses"]]
+        self.verses = [ChapterVerse(i) for i in self.json["verses"]]
         self.raw_verse = self.json["text"]
         if self.request.status == 404:
             raise NotFound(book, chapter, verse)
