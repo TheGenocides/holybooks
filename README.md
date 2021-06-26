@@ -14,7 +14,7 @@ No instalation for now!
 # To return a quran's verse/chapter(surah) and other info
 from hollybook import quran
 
-surah=quran.Surah.request(1) #'1' is the first chapter and request is for sync function to make it async replace request to async_request
+surah=quran.Surah.request(1) #'1' is the first chapter and request is for sync function to make it async replace request to async_request()
 print(surah.name('eng')) #Only support arabic(ar) and english(eng)
 #return al-fatihah
 
@@ -22,7 +22,7 @@ print(surah.name('eng')) #Only support arabic(ar) and english(eng)
 # To return a bible verse's info
 from hollybook import bible
 
-bible_verses=bible.Bible.request(
+bible_verses=bible.Chapter.request( #request is for sync function to make it async replace request to async_request()
     "2 Corinthians", chapter=4,
     starting_verse=16, ending_verse=18
 )  # this gets the info of 2 Corinthians 4:16-18
@@ -31,7 +31,7 @@ for verse in bible_verses.verses:
     print(
         verse.citation,  # The citation of the current verse
         verse  # executes the __str__ method of the BibleVerse class (it returns the verse itself)
-    )
+    ) 
 ```
 
 # API That I Used
