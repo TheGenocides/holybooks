@@ -231,4 +231,3 @@ class Search:
 			for num in range(self.req):
 				data.append(self.matches[num]['text'])
 			return data
-		return self.data['count']
