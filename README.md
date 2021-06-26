@@ -12,7 +12,7 @@ No instalation for now!
 
 ```python
 # To return a quran's verse/chapter(surah) and other info
-from hollybook import quran
+from hollybooks import quran
 
 surah=quran.Surah.request(1) #'1' is the first chapter and request is for sync function to make it async replace request to async_request()
 print(surah.name('eng')) #Only support arabic(ar) and english(eng)
@@ -20,7 +20,7 @@ print(surah.name('eng')) #Only support arabic(ar) and english(eng)
 
 
 # To return a bible verse's info
-from hollybook import bible
+from hollybooks import bible
 
 bible_verses=bible.Chapter.request( #request is for sync function to make it async replace request to async_request()
     "2 Corinthians", chapter=4,
