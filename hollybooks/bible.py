@@ -1,16 +1,6 @@
+from .errors.errors import ApiError, NotFound
+
 __all__ = ("ApiError", "NotFound", "ChapterVerse", "Chapter")
-
-
-class ApiError(Exception):
-    def __init__(self, status: int, msg: str) -> None:
-        super().__init__(f"Api has an error, return code: {status}.\n{msg}")
-
-
-class NotFound(Exception):
-    def __init__(self, book: str, chapter: int, verse: str) -> None:
-        super().__init__(
-            f"Book {book}, Chapter {chapter}, Verse(s) {verse} Wasn't Found."
-        )
 
 
 def _build_verse(start: int, end: int = None) -> str:
@@ -54,9 +44,7 @@ class Chapter:
         self = cls(book)
         verse = _build_verse(starting_verse, ending_verse)
 
-        self.request = requests.get(
-            f"https://bible-api.com/{book}+{chapter}:{verse}"
-        )
+        self.request = requests.get(f"https://bible-api.com/{book}+{chapter}:{verse}")
         if self.request.status_code == 404:
             raise NotFound(book, chapter, verse)
         elif self.request.status_code > 202:
