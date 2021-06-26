@@ -102,11 +102,11 @@ class Surah:
         return data
 
     async def ayah_info(
-        self,
+		self,
         ayah: int = 1, *,
         text: bool = True,
         number_in_quran: bool = True,
-        number_in_surah: bool = True,
+		number_in_surah: bool = True,
         juz: bool = True,
         manzil: bool = True,
 		page: bool = True,
@@ -147,17 +147,19 @@ class Surah:
 
 
 class Search:
-	def __init__(self, mention:str=None, *, surah:Optional[Union[str, int]]=None):
+	def __init__(self, mention:str=None, *, surah:Optional[Union[str, int]]=None, request: int=None):
 		self.mention = mention
 		self.surah = surah
+		self.req = request
 	
 	@classmethod
-	async def async_request(cls, 
-						mention:str=None, *, 
-						surah:Optional[Union[str, int]]=None,
-						loop=None
-					):
-		
+	async def async_request(
+		cls, 
+		mention:str=None, *, 
+		surah:Optional[Union[str, int]]=None,
+		request:int=None,
+		loop=None
+	):
 		try:
 			import aiohttp
 		except ImportError:
@@ -165,7 +167,9 @@ class Search:
 				"Please Install the aiohttp module if you want to make an async request."
 			)
 
-		self = cls(mention, surah=surah)
+
+		self = cls(mention, surah=surah, request=request)
+
 		try:
 			async with aiohttp.ClientSession(loop=loop) as session:
 				async with session.get(
@@ -173,7 +177,7 @@ class Search:
 				) as resp:
 					self.request = await resp.json()
 		except aiohttp.client_exceptions.ContentTypeError:
-			error=f"Attempt to decode JSON with unexpected mimetype: Return code: None\nlink: http://api.alquran.cloud/v1/search/Abraham/1/en.pickthall"
+			error=f"Attempt to decode JSON with unexpected mimetype: Return code: None\nlink: http://api.alquran.cloud/v1/search/{mention}/{surah}/en.pickthall"
 			raise ApiError(error)
 		
 		self.data = self.request["data"]
@@ -185,13 +189,13 @@ class Search:
 
 		return self
 
-
 	@classmethod
-	def request(cls, 
-				mention:str=None, *, 
-				surah:Optional[Union[str, int]]=None
-			):
-
+	def request(
+		cls, 
+		mention: str=None, *, 
+		surah: Optional[Union[str, int]]=None,
+		request: int = None
+	):
 		try:
 			import requests
 		except ImportError:
@@ -199,7 +203,7 @@ class Search:
 		"Please Install the requests module if you want to make a sync request."
 		)
 
-		self = cls(mention, surah=surah)
+		self = cls(mention, surah=surah, request=request)
 		self.request = requests.get(
 		f"http://api.alquran.cloud/v1/search/{mention}/{surah}/en.pickthall"
 		).json()
@@ -214,10 +218,17 @@ class Search:
 		return self
 	
 	def count(self):
-		return self.data['count']
+		return self.request['data']['count']
 
 	def find(self):
 		data=[]
-		for num in range(self.data['count']):
-			data.append(self.matches[num]['text'])
-		return data
+		if self.req == None:
+			for num in range(self.data['count']):
+				data.append(self.matches[num]['text'])
+			return data
+
+		else:	
+			for num in range(self.req):
+				data.append(self.matches[num]['text'])
+			return data
+		return self.data['count']
