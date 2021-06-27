@@ -1,4 +1,5 @@
-__all__ = ("ApiError", "NotFound", "ChapterVerse", "Book")
+__all__ = ("ApiError", "NotFound", "ChapterVerse", "Chapter")
+
 
 class ApiError(Exception):
 	def __init__(self, status: int, msg: str) -> None:
@@ -40,7 +41,7 @@ class ChapterVerse:
 		return _build_citation(self.book_name, self.chapter, self.verse)
 
 
-class Book:
+class Chapter:
 	def __init__(self, book: str) -> None:
 		self.book = book
 
@@ -98,7 +99,7 @@ class Book:
 			import aiohttp
 		except ImportError:
 			raise ImportError(
-				"Please Install the aiohtt module if you want to make an async request."
+				"Please Install the aiohttp module if you want to make an async request."
 			)
 
 		self = cls(book)
