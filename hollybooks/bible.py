@@ -98,7 +98,7 @@ class Book:
 			import aiohttp
 		except ImportError:
 			raise ImportError(
-				"Please Install the aiohttp module if you want to make an async request."
+				"Please Install the aiohtt module if you want to make an async request."
 			)
 
 		self = cls(book)
