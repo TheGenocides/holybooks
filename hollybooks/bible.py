@@ -1,6 +1,5 @@
 __all__ = ("ApiError", "NotFound", "ChapterVerse", "Book")
 
-
 class ApiError(Exception):
 	def __init__(self, status: int, msg: str) -> None:
 		super().__init__(f"Api has an error, return code: {status}.\n{msg}")
