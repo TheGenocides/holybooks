@@ -1,4 +1,4 @@
-__all__ = ("ApiError", "NotFound", "ChapterVerse", "Chapter")
+__all__ = ("ApiError", "NotFound", "ChapterVerse", "Chapter", "TorahOnly")
 
 
 class ApiError(Exception):
