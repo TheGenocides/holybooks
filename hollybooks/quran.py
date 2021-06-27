@@ -12,7 +12,7 @@ class ContentTypeError(Exception):
 
 class NumberError(Exception):
     def __init__(self, mode:int, obj:str, first_query: int, second_query: Optional[Union[str, int]]) -> None:
-        super().__init__(f"{obj} ust above {first_query}" if mode == 0 else f"{obj} must be between {first_query} to {second_query}")
+        super().__init__(f"{obj} Must above {first_query}" if mode == 0 else f"{obj} must be between {first_query} to {second_query}")
 
 
 class WrongLang(Exception):
