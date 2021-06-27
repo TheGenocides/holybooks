@@ -1,6 +1,6 @@
 from typing import Union, Optional
 
-__all__ = ("Surah", "Ayah", "Search")
+__all__ = ("Surah", "Ayah", "Search", "ApiError", "ContentTypeError", "NumberError", "WrongLang")
 
 class ApiError(Exception):
     def __init__(self, status: int, msg: str) -> None:
