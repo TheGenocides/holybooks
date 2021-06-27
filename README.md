@@ -14,7 +14,7 @@ No instalation for now!
 # To return a verse(s) info inside the surah(Chapter)
 from hollybooks import quran
 
-surah=quran.Surah.request(112) #'1' is the first chapter and request is for sync function to make it async replace request to async_request()
+surah=quran.Surah.request(112) #'112' is the chapter and request is for sync function to make it async replace request to async_request()
 print(surah.request_ayahs())
 #return the verses in a list 
 
@@ -31,7 +31,7 @@ bible_verses=bible.Chapter.request( #request is for sync function to make it asy
 for verse in bible_verses.verses:
     print(
         verse.citation,  # The citation of the current verse
-        verse  # executes the __str__ method of the BibleVerse class (it returns the verse itself)
+        verse  # executes the __str__ method of the ChapterVerse class (it returns the verse itself)
     ) 
 	
 #===============================================================================================================================
@@ -46,7 +46,7 @@ torah_verses=torah.Chapter.request( #request is for sync function to make it asy
 for verse in torah_verses.verses:
     print(
         verse.citation,  # The citation of the current verse
-        verse  # executes the __str__ method of the BibleVerse class (it returns the verse itself)
+        verse  # executes the __str__ method of the ChapterVerse class (it returns the verse itself)
     ) 
 ```
 
