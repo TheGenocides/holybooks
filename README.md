@@ -1,6 +1,6 @@
 # hollybooks
 
-An Api wrapper for extract info from 3 diffreant holly books. Right now (6/25/2021) it only have 1 api which connect to the quran api. My plan is to have 3 Api(s).
+An Api wrapper for extract info from 3 diffreant hollybooks. I didn't made the document for this so for now read the file to find all functions etc. I will add more hollybooks in the future!
 
 # Installation
 
@@ -18,6 +18,7 @@ surah=quran.Surah.request(112) #'1' is the first chapter and request is for sync
 print(surah.request_ayahs())
 #return the verses in a list 
 
+#===============================================================================================================================
 
 # To return a bible verse's info
 from hollybooks import bible
@@ -32,6 +33,21 @@ for verse in bible_verses.verses:
         verse.citation,  # The citation of the current verse
         verse  # executes the __str__ method of the BibleVerse class (it returns the verse itself)
     ) 
+	
+#===============================================================================================================================
+
+from hollybooks import torah
+
+torah_verses=torah.Chapter.request( #request is for sync function to make it async replace request to async_request()
+    "Genesis", chapter=1,
+    starting_verse=1, ending_verse=10
+)  # this gets the info of Genesis 1:1-10
+
+for verse in torah_verses.verses:
+    print(
+        verse.citation,  # The citation of the current verse
+        verse  # executes the __str__ method of the BibleVerse class (it returns the verse itself)
+    ) 
 ```
 
 # API That I Used
@@ -40,7 +56,7 @@ for verse in bible_verses.verses:
 
 [Bible](https://bible-api.com/)
 
-Torah - Not available
+[Torah](https://bible-api.com/)
 
 # Contributing
 
