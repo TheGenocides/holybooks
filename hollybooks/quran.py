@@ -25,7 +25,10 @@ class Surah:
         self.surah = surah
 
     @classmethod
-    def request(cls, surah: int = None):
+    def request(
+		cls, 
+		surah: int = None
+	):
         try:
             import requests
         except ImportError:
@@ -48,7 +51,11 @@ class Surah:
         return self
 
     @classmethod
-    async def async_request(cls, surah: int = None, *, loop=None):
+    async def async_request(
+		cls, 
+		surah: int = None, *, 
+		loop=None
+	):
         try:
             import aiohttp
         except ImportError:
