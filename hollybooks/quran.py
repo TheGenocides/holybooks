@@ -107,10 +107,9 @@ class Surah:
     def number_ayahs(self):
         return self.data["numberOfAyahs"]
 
-    @property
-    async def request_ayahs(self):
+    def request_ayahs(self):
         data = []
-        for number in range(Surah(self.surah).number_ayahs()):
+        for number in range(Surah.request(self.surah).number_ayahs):
             data.append(f"{self.ayah[number]['text']}")
         return data
 
