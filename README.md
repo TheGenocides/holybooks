@@ -4,7 +4,7 @@ An Api Wrapper for extracting info from: quran api and bible api. I didn\'t made
 
 # Installation
 
-Find the module in here [Module](https://pypi.org/project/hollybooks/) 
+Find the module in here [Module](https://pypi.org/project/holybooks/) 
 
 ```bash
 pip install holybooks
