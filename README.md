@@ -1,11 +1,13 @@
 # hollybooks
 
-An Api wrapper for extract info from 3 diffreant hollybooks. I didn't made the document for this so for now read the file to find all functions etc. I will add more hollybooks in the future!
+An Api Wrapper for extracting info from: quran api and bible api. I didn\'t made the document for this so for now read the file to find all functions there. I will add more holybooks in the future!
 
 # Installation
 
+Find the module in here [Module](https://pypi.org/project/hollybooks/) 
+
 ```bash
-No instalation for now!
+pip install holybooks
 ```
 
 # Usage
