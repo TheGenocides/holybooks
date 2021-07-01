@@ -14,7 +14,8 @@ classifiers = [
 setup(
 	name='holybooks',
 	version='0.1.2',
-	description='An Api Wrapper for extracting info from: quran api and bible api. I didn\'t made the document for this so for now read the file in my github(https://github.com/TheGenocides/holybooks) to find all functions there. I will add more holybooks in the future!',
+	url='https://github.com/TheGenocides/holybooks',
+	description='An Api Wrapper for extracting info from: quran api and bible api.',
 	long_description=long_description,
 	long_description_content_type = 'text/markdown',  
 	author='TheGenocide',
