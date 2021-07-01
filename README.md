@@ -1,4 +1,4 @@
-# hollybooks
+# holybooks
 
 An Api Wrapper for extracting info from: quran api and bible api. I didn\'t made the document for this so for now read the file to find all functions there. I will add more holybooks in the future!
 
@@ -14,7 +14,7 @@ pip install holybooks
 
 ```python
 # To return a verse(s) info inside the surah(Chapter)
-from hollybooks import Surah
+from holybooks import Surah
 
 surah=Surah.request(112) #'112' is the chapter and request is for sync function to make it async replace request to async_request()
 print(surah.request_ayahs())
@@ -23,7 +23,7 @@ print(surah.request_ayahs())
 #===============================================================================================================================
 
 # To return a bible verse's info
-from hollybooks import Bible
+from holybooks import Bible
 
 bible_verses=Bible.request(  #request is for sync function to make it async replace request to async_request()
     "2 Corinthians", chapter=4,
@@ -38,7 +38,7 @@ for verse in bible_verses.verses:
 	
 #===============================================================================================================================
 
-from hollybooks import Torah
+from holybooks import Torah
 
 torah_verses=Torah.request(  #request is for sync function to make it async replace request to async_request()
     "Genesis", chapter=1,
