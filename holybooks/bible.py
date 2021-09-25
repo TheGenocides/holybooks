@@ -34,6 +34,7 @@ class Bible:
         self.json = None
         self.verses = None
         self.raw_verse = None
+        self._request = None
 
     @classmethod
     def request(
