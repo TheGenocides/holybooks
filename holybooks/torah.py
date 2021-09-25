@@ -1,5 +1,5 @@
 from .bible import Bible
-from .errors import ApiError, NotFound, BibleOnly
+from .errors import BibleOnly
 
 __all__ = ("Torah",)
 
@@ -66,8 +66,12 @@ class Torah(Bible):
 
     @property
     def citation(self) -> str:
+        if not self.json:
+            return None
         return self.json["reference"]
 
     @property
     def translation(self) -> str:
+        if not self.json:
+            return None
         return self.json["translation_name"]
