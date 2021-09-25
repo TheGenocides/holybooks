@@ -162,6 +162,17 @@ class Surah:
             }
             return data
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        return
 
 class Ayah:
     def __init__(self, surah: int = None, *, ayah: int = None):
@@ -245,6 +256,17 @@ class Ayah:
             return None
         return self._request["status"]
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        return
 
 class Search:
     def __init__(
@@ -368,3 +390,15 @@ class Search:
             for num in range(self.req):
                 data.append(self.matches[num]["text"])
             return data
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        return

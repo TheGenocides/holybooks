@@ -75,3 +75,15 @@ class Torah(Bible):
         if not self.json:
             return None
         return self.json["translation_name"]
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        return
