@@ -1,26 +1,7 @@
 from .bible import Bible
+from .errors import ApiError, NotFound, BibleOnly
 
-
-__all__ = ("ApiError", "NotFound", "Torah", "BibleOnly")
-
-
-class ApiError(Exception):
-    def __init__(self, status: int, msg: str) -> None:
-        super().__init__(f"Api has an error, return code: {status}.\n{msg}")
-
-
-class NotFound(Exception):
-    def __init__(self, book: str, chapter: int, verse: str) -> None:
-        super().__init__(
-            f"Book {book}, Chapter {chapter}, Verse(s) {verse} Wasn't Found."
-        )
-
-
-class BibleOnly(Exception):
-    def __init__(self, book: str) -> None:
-        super().__init__(
-            f"The book {book} wasn't found because its available only in Bible"
-        )
+__all__ = ("Torah",)
 
 
 class Torah(Bible):

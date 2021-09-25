@@ -1,16 +1,6 @@
-__all__ = ("ApiError", "NotFound", "ChapterVerse", "Bible")
+from .errors import ApiError, NotFound
 
-
-class ApiError(Exception):
-    def __init__(self, status: int, msg: str) -> None:
-        super().__init__(f"Api has an error, return code: {status}.\n{msg}")
-
-
-class NotFound(Exception):
-    def __init__(self, book: str, chapter: int, verse: str) -> None:
-        super().__init__(
-            f"Book {book}, Chapter {chapter}, Verse(s) {verse} Wasn't Found."
-        )
+__all__ = ("ChapterVerse", "Bible")
 
 
 def _build_verse(start: int, end: int = None) -> str:
