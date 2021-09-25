@@ -105,7 +105,9 @@ class Surah:
         sajda: bool = True,
     ):
         if ayah <= 0:
-            raise NumberError(mode=0, obj="ayah", first_query=1, second_query=None)
+            raise NumberError(
+                mode=0, obj="ayah", first_query=1, second_query=None
+            )
 
         elif ayah > int(Surah.request(self.surah).number_ayahs):
             raise NumberError(
@@ -161,7 +163,9 @@ class Ayah:
         return self
 
     @classmethod
-    async def async_request(cls, surah: int = None, *, ayah: int = None, loop=None):
+    async def async_request(
+        cls, surah: int = None, *, ayah: int = None, loop=None
+    ):
         try:
             import aiohttp
         except ImportError:
@@ -179,7 +183,10 @@ class Ayah:
                     self.request = await resp.json()
         except aiohttp.client_exceptions.ContentTypeError:
             raise ContentTypeError(
-                class_="Ayah", mode="ayah", first_query=surah, second_query=surah
+                class_="Ayah",
+                mode="ayah",
+                first_query=surah,
+                second_query=surah,
             )
 
         self.data = self.request["data"]
@@ -234,7 +241,10 @@ class Search:
                     self.request = await resp.json()
         except aiohttp.client_exceptions.ContentTypeError:
             raise ContentTypeError(
-                class_="Search", mode="search", first_query=mention, second_query=surah
+                class_="Search",
+                mode="search",
+                first_query=mention,
+                second_query=surah,
             )
 
         self.data = self.request["data"]

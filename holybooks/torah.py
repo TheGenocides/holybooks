@@ -10,7 +10,12 @@ class Torah(Bible):
 
     @classmethod
     def request(
-        cls, book: str, *, chapter: int, starting_verse: int, ending_verse: int = None
+        cls,
+        book: str,
+        *,
+        chapter: int,
+        starting_verse: int,
+        ending_verse: int = None,
     ):
         if book.lower() not in [
             "genesis",

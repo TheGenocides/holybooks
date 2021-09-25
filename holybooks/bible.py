@@ -32,7 +32,12 @@ class Bible:
 
     @classmethod
     def request(
-        cls, book: str, *, chapter: int, starting_verse: int, ending_verse: int = None
+        cls,
+        book: str,
+        *,
+        chapter: int,
+        starting_verse: int,
+        ending_verse: int = None,
     ):
         try:
             import requests
@@ -44,7 +49,9 @@ class Bible:
         self = cls(book)
         verse = _build_verse(starting_verse, ending_verse)
 
-        self.request = requests.get(f"https://bible-api.com/{book}+{chapter}:{verse}")
+        self.request = requests.get(
+            f"https://bible-api.com/{book}+{chapter}:{verse}"
+        )
         if self.request.status_code == 404:
             raise NotFound(book, chapter, verse)
         elif self.request.status_code > 202:
