@@ -1,3 +1,4 @@
+from _typeshed import NoneType
 from typing import Union, Optional
 from .errors import ApiError, WrongLang, NumberError, ContentTypeError
 
@@ -11,6 +12,11 @@ __all__ = (
 class Surah:
     def __init__(self, surah: int = None):
         self.surah = surah
+        self._session = None
+        self._async_session = None
+        self.data = None
+        self.ayah = None
+        self._request = None
 
     @classmethod
     def request(cls, surah: int = None):
@@ -23,13 +29,16 @@ class Surah:
 
         self = cls(surah)
 
-        self.request = requests.get(
+        if not self._session:
+            self._session = requests.Session()
+
+        self._request = self._session.get(
             f"https://api.alquran.cloud/v1/surah/{surah}/en.asad"
         ).json()
-        self.data = self.request["data"]
+        self.data = self._request["data"]
         self.ayah = self.data["ayahs"]
-        if self.request["code"] > 202:
-            raise ApiError(code=self.request["code"], msg=self.request["data"])
+        if self._request["code"] > 202:
+            raise ApiError(code=self._request["code"], msg=self._request["data"])
 
         return self
 
@@ -43,26 +52,36 @@ class Surah:
             )
 
         self = cls(surah)
-        async with aiohttp.ClientSession(loop=loop) as session:
+
+        if not self._async_session:
+            self._async_session = aiohttp.ClientSession(loop=loop)
+
+        async with self._async_session as session:
             async with session.get(
                 f"https://api.alquran.cloud/v1/surah/{surah}/en.asad"
             ) as resp:
-                self.request = await resp.json()
-        self.data = self.request["data"]
+                self._request = await resp.json()
+        self.data = self._request["data"]
         self.ayah = self.data["ayahs"]
-        if self.request["code"] > 202:
-            raise ApiError(code=self.request["code"], msg=self.request["data"])
+        if self._request["code"] > 202:
+            raise ApiError(code=self._request["code"], msg=self._request["data"])
         return self
 
     @property
     def api_code(self):
-        return self.request["code"]
+        if not self._request:
+            return None
+        return self._request["code"]
 
     @property
     def api_status(self):
-        return self.request["status"]
+        if not self._request:
+            return None
+        return self._request["status"]
 
     def name(self, lang: str = "ar"):
+        if not self.data:
+            return None
         if lang == "ar" or lang.lower() == "arabic":
             return self.data["name"]
 
@@ -85,6 +104,8 @@ class Surah:
         return self.data["numberOfAyahs"]
 
     def request_ayahs(self):
+        if not self.ayah:
+            return None
         data = []
         for number in range(Surah.request(self.surah).number_ayahs):
             data.append(f"{self.ayah[number]['text']}")
@@ -129,12 +150,12 @@ class Surah:
                 else None,
                 "juz": self.ayah[ayah]["juz"] if juz else None,
                 "manzil": self.ayah[ayah]["manzil"] if manzil else None,
-                "page": self.ayah[ayah]["page"] if text else None,
-                "ruku": self.ayah[ayah]["ruku"] if number_in_quran else None,
+                "page": self.ayah[ayah]["page"] if page else None,
+                "ruku": self.ayah[ayah]["ruku"] if ruku else None,
                 "hizbquarter": self.ayah[ayah]["hizbQuarter"]
-                if number_in_surah
+                if hizbquarter
                 else None,
-                "sajda": self.ayah[ayah]["sajda"] if juz else None,
+                "sajda": self.ayah[ayah]["sajda"] if sajda else None,
             }
             return data
 
@@ -143,6 +164,10 @@ class Ayah:
     def __init__(self, surah: int = None, *, ayah: int = None):
         self.surah = surah
         self.ayah = ayah
+        self._request = None
+        self.data = None
+        self._session = None
+        self._async_session = None
 
     @classmethod
     def request(cls, surah: int = None, *, ayah: int = None, loop=None):
@@ -154,12 +179,16 @@ class Ayah:
             )
 
         self = cls(surah, ayah=ayah)
-        self.request = requests.get(
+
+        if not self._session:
+            self._session = requests.Session()
+
+        self._request = self._session.get(
             f"http://api.alquran.cloud/v1/ayah/{surah}:{ayah}/en.asad"
         ).json()
-        self.data = self.request["data"]
-        if self.request["code"] > 202:
-            raise ApiError(code=self.request["code"], msg=self.request["data"])
+        self.data = self._request["data"]
+        if self._request["code"] > 202:
+            raise ApiError(code=self._request["code"], msg=self._request["data"])
         return self
 
     @classmethod
@@ -175,12 +204,15 @@ class Ayah:
 
         self = cls(surah, ayah=ayah)
 
+        if not self._async_session:
+            self._async_session = aiohttp.ClientSession(loop=loop)
+
         try:
-            async with aiohttp.ClientSession(loop=loop) as session:
+            async with self._async_session as session:
                 async with session.get(
                     f"http://api.alquran.cloud/v1/ayah/{surah}:{ayah}/en.asad"
                 ) as resp:
-                    self.request = await resp.json()
+                    self._request = await resp.json()
         except aiohttp.client_exceptions.ContentTypeError:
             raise ContentTypeError(
                 class_="Ayah",
@@ -189,18 +221,22 @@ class Ayah:
                 second_query=surah,
             )
 
-        self.data = self.request["data"]
-        if self.request["code"] > 202:
-            raise ApiError(code=self.request["code"], msg=self.request["data"])
+        self.data = self._request["data"]
+        if self._request["code"] > 202:
+            raise ApiError(code=self._request["code"], msg=self._request["data"])
         return self
 
     @property
     def api_code(self):
-        return self.request["code"]
+        if not self._request:
+            return None
+        return self._request["code"]
 
     @property
     def api_status(self):
-        return self.request["status"]
+        if not self._request:
+            return None
+        return self._request["status"]
 
 
 class Search:
@@ -214,6 +250,10 @@ class Search:
         self.mention = mention
         self.surah = surah
         self.req = request
+        self.data = None
+        self.matches = None
+        self._session = self._async_session = None
+        self._request = None
 
     @classmethod
     async def async_request(
@@ -233,12 +273,15 @@ class Search:
 
         self = cls(mention, surah=surah, request=request)
 
+        if not self._async_session:
+            self._async_session = aiohttp.ClientSession(loop=loop)
+
         try:
-            async with aiohttp.ClientSession(loop=loop) as session:
+            async with self._async_session as session:
                 async with session.get(
                     f"http://api.alquran.cloud/v1/search/{mention}/{surah}/en.pickthall"
                 ) as resp:
-                    self.request = await resp.json()
+                    self._request = await resp.json()
         except aiohttp.client_exceptions.ContentTypeError:
             raise ContentTypeError(
                 class_="Search",
@@ -247,10 +290,10 @@ class Search:
                 second_query=surah,
             )
 
-        self.data = self.request["data"]
+        self.data = self._request["data"]
         self.matches = self.data["matches"]
-        if self.request["code"] > 202:
-            raise ApiError(code=self.request["code"], msg=self.request["data"])
+        if self._request["code"] > 202:
+            raise ApiError(code=self._request["code"], msg=self._request["data"])
 
         return self
 
@@ -270,28 +313,40 @@ class Search:
             )
 
         self = cls(mention, surah=surah, request=request)
-        self.request = requests.get(
+
+        if not self._session:
+            self._session = requests.Session()
+
+        self._request = self._session.get(
             f"http://api.alquran.cloud/v1/search/{mention}/{surah}/en.pickthall"
         ).json()
-        self.data = self.request["data"]
+        self.data = self._request["data"]
         self.matches = self.data["matches"]
-        if self.request["code"] > 202:
-            raise ApiError(code=self.request["code"], msg=self.request["data"])
+        if self._request["code"] > 202:
+            raise ApiError(code=self._request["code"], msg=self._request["data"])
         return self
 
     @property
     def count(self):
+        if not self.data:
+            return None
         return self.data["count"]
 
     @property
     def api_code(self):
-        return self.request["code"]
+        if not self._request:
+            return None
+        return self._request["code"]
 
     @property
     def api_status(self):
-        return self.request["status"]
+        if not self._request:
+            return None
+        return self._request["status"]
 
     def find(self):
+        if self.data is None or self.matches is None:
+            return None
         data = []
         if self.req == None:
             for num in range(self.data["count"]):
