@@ -1,4 +1,3 @@
-from _typeshed import NoneType
 from typing import Union, Optional
 from .errors import ApiError, WrongLang, NumberError, ContentTypeError
 
@@ -38,7 +37,9 @@ class Surah:
         self.data = self._request["data"]
         self.ayah = self.data["ayahs"]
         if self._request["code"] > 202:
-            raise ApiError(code=self._request["code"], msg=self._request["data"])
+            raise ApiError(
+                code=self._request["code"], msg=self._request["data"]
+            )
 
         return self
 
@@ -64,7 +65,9 @@ class Surah:
         self.data = self._request["data"]
         self.ayah = self.data["ayahs"]
         if self._request["code"] > 202:
-            raise ApiError(code=self._request["code"], msg=self._request["data"])
+            raise ApiError(
+                code=self._request["code"], msg=self._request["data"]
+            )
         return self
 
     @property
@@ -188,7 +191,9 @@ class Ayah:
         ).json()
         self.data = self._request["data"]
         if self._request["code"] > 202:
-            raise ApiError(code=self._request["code"], msg=self._request["data"])
+            raise ApiError(
+                code=self._request["code"], msg=self._request["data"]
+            )
         return self
 
     @classmethod
@@ -223,7 +228,9 @@ class Ayah:
 
         self.data = self._request["data"]
         if self._request["code"] > 202:
-            raise ApiError(code=self._request["code"], msg=self._request["data"])
+            raise ApiError(
+                code=self._request["code"], msg=self._request["data"]
+            )
         return self
 
     @property
@@ -293,7 +300,9 @@ class Search:
         self.data = self._request["data"]
         self.matches = self.data["matches"]
         if self._request["code"] > 202:
-            raise ApiError(code=self._request["code"], msg=self._request["data"])
+            raise ApiError(
+                code=self._request["code"], msg=self._request["data"]
+            )
 
         return self
 
@@ -323,7 +332,9 @@ class Search:
         self.data = self._request["data"]
         self.matches = self.data["matches"]
         if self._request["code"] > 202:
-            raise ApiError(code=self._request["code"], msg=self._request["data"])
+            raise ApiError(
+                code=self._request["code"], msg=self._request["data"]
+            )
         return self
 
     @property

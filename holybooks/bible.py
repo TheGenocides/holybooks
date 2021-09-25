@@ -65,7 +65,8 @@ class Bible:
             raise NotFound(book, chapter, verse)
         elif self._request.status_code > 202:
             raise ApiError(
-                self._request.status_code, self._request.json().get("error", "")
+                self._request.status_code,
+                self._request.json().get("error", ""),
             )
 
         self.json = self._request.json()
