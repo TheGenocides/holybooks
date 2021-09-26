@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
-from typing import Optional, Union
+
+if TYPE_CHECKING:
+    from typing import Optional, Union
 
 __all__ = (
     "ApiError",

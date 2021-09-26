@@ -1,5 +1,11 @@
-from typing import Union, Optional
 from .errors import ApiError, WrongLang, NumberError, ContentTypeError
+import aiohttp
+import requests
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Union, Optional
+
 
 __all__ = (
     "Surah",
@@ -19,12 +25,6 @@ class Surah:
 
     @classmethod
     def request(cls, surah: int = None):
-        try:
-            import requests
-        except ImportError:
-            raise ImportError(
-                "Please Install the requests module if you want to make a sync request."
-            )
 
         self = cls(surah)
 
@@ -45,12 +45,6 @@ class Surah:
 
     @classmethod
     async def async_request(cls, surah: int = None, *, loop=None):
-        try:
-            import aiohttp
-        except ImportError:
-            raise ImportError(
-                "Please Install the aiohttp module if you want to make an async request."
-            )
 
         self = cls(surah)
 
@@ -185,13 +179,6 @@ class Ayah:
 
     @classmethod
     def request(cls, surah: int = None, *, ayah: int = None, loop=None):
-        try:
-            import requests
-        except ImportError:
-            raise ImportError(
-                "Please Install the requests module if you want to make a sync request."
-            )
-
         self = cls(surah, ayah=ayah)
 
         if not self._session:
@@ -211,12 +198,6 @@ class Ayah:
     async def async_request(
         cls, surah: int = None, *, ayah: int = None, loop=None
     ):
-        try:
-            import aiohttp
-        except ImportError:
-            raise ImportError(
-                "Please Install the aiohttp module if you want to make an async request."
-            )
 
         self = cls(surah, ayah=ayah)
 
@@ -293,12 +274,6 @@ class Search:
         request: int = None,
         loop=None,
     ):
-        try:
-            import aiohttp
-        except ImportError:
-            raise ImportError(
-                "Please Install the aiohttp module if you want to make an async request."
-            )
 
         self = cls(mention, surah=surah, request=request)
 
@@ -336,12 +311,6 @@ class Search:
         surah: Optional[Union[str, int]] = None,
         request: int = None,
     ):
-        try:
-            import requests
-        except ImportError:
-            raise ImportError(
-                "Please Install the requests module if you want to make a sync request."
-            )
 
         self = cls(mention, surah=surah, request=request)
 
@@ -381,15 +350,14 @@ class Search:
         if self.data is None or self.matches is None:
             return None
         data = []
-        if self.req == None:
+        if self.req is None:
             for num in range(self.data["count"]):
                 data.append(self.matches[num]["text"])
-            return data
 
         else:
             for num in range(self.req):
                 data.append(self.matches[num]["text"])
-            return data
+        return data
 
     def __enter__(self):
         return self

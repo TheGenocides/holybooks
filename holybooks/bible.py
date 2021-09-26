@@ -1,4 +1,6 @@
 from .errors import ApiError, NotFound
+import aiohttp
+import requests
 
 __all__ = ("ChapterVerse", "Bible")
 
@@ -45,12 +47,6 @@ class Bible:
         starting_verse: int,
         ending_verse: int = None,
     ):
-        try:
-            import requests
-        except ImportError:
-            raise ImportError(
-                "Please Install the requests module if you want to make a sync request."
-            )
 
         self = cls(book)
         verse = _build_verse(starting_verse, ending_verse)
@@ -84,12 +80,6 @@ class Bible:
         ending_verse: int = None,
         loop=None,
     ):
-        try:
-            import aiohttp
-        except ImportError:
-            raise ImportError(
-                "Please Install the aiohttp module if you want to make an async request."
-            )
 
         self = cls(book)
         verse = _build_verse(starting_verse, ending_verse)
