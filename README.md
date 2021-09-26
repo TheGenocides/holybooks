@@ -2,15 +2,15 @@
 
 An Api Wrapper for extracting info from: quran api and bible api. I didn\'t made the document for this so for now read the file to find all functions there. I will add more holybooks in the future!
 
-# Installation
+## Installation
 
-Find the module in here [Module](https://pypi.org/project/holybooks/) 
+Find the module in here [Module](https://pypi.org/project/holybooks/)
 
 ```bash
 pip install holybooks
 ```
 
-# Usage
+## Usage
 
 ```python
 # To return a verse(s) info inside the surah(Chapter)
@@ -35,7 +35,7 @@ for verse in bible_verses.verses:
         verse.citation,  # The citation of the current verse
         verse  # executes the __str__ method of the ChapterVerse class (it returns the verse itself)
     ) 
-	
+
 #===============================================================================================================================
 
 from holybooks import Torah
@@ -52,7 +52,7 @@ for verse in torah_verses.verses:
     ) 
 ```
 
-# API That I Used
+## API That I Used
 
 [Qur'an](https://alquran.cloud/api)
 
@@ -60,12 +60,12 @@ for verse in torah_verses.verses:
 
 [Torah](https://bible-api.com/)
 
-# Contributing
+## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 Please make sure to update tests as appropriate.
 
-# License
+## License
 
 [MIT](https://choosealicense.com/licenses/mit/)

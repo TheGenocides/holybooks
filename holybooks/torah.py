@@ -1,26 +1,7 @@
 from .bible import Bible
+from .errors import BibleOnly
 
-
-__all__ = ("ApiError", "NotFound", "Torah", "BibleOnly")
-
-
-class ApiError(Exception):
-    def __init__(self, status: int, msg: str) -> None:
-        super().__init__(f"Api has an error, return code: {status}.\n{msg}")
-
-
-class NotFound(Exception):
-    def __init__(self, book: str, chapter: int, verse: str) -> None:
-        super().__init__(
-            f"Book {book}, Chapter {chapter}, Verse(s) {verse} Wasn't Found."
-        )
-
-
-class BibleOnly(Exception):
-    def __init__(self, book: str) -> None:
-        super().__init__(
-            f"The book {book} wasn't found because its available only in Bible"
-        )
+__all__ = ("Torah",)
 
 
 class Torah(Bible):
@@ -29,7 +10,12 @@ class Torah(Bible):
 
     @classmethod
     def request(
-        cls, book: str, *, chapter: int, starting_verse: int, ending_verse: int = None
+        cls,
+        book: str,
+        *,
+        chapter: int,
+        starting_verse: int,
+        ending_verse: int = None,
     ):
         if book.lower() not in [
             "genesis",
@@ -80,8 +66,24 @@ class Torah(Bible):
 
     @property
     def citation(self) -> str:
+        if not self.json:
+            return None
         return self.json["reference"]
 
     @property
     def translation(self) -> str:
+        if not self.json:
+            return None
         return self.json["translation_name"]
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        return
