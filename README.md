@@ -1,10 +1,10 @@
 # holybooks
 
-An Api Wrapper for extracting info from: quran api and bible api. I didn\'t made the document for this so for now read the file to find all functions there. I will add more holybooks in the future!
+An API Wrapper for extracting info from the Al-Quran API and the Bible api. I didn\'t make the documentation for this so for now read the file to find all functions there. I will add more holybooks in the future!
 
 ## Installation
 
-Find the module in here [Module](https://pypi.org/project/holybooks/)
+Find the module [here](https://pypi.org/project/holybooks/).
 
 ```bash
 pip install holybooks
@@ -52,13 +52,11 @@ for verse in torah_verses.verses:
     ) 
 ```
 
-## API That I Used
+## API's That I Used
 
 [Qur'an](https://alquran.cloud/api)
 
-[Bible](https://bible-api.com/)
-
-[Torah](https://bible-api.com/)
+[Bible/Torah](https://bible-api.com/)
 
 ## Contributing
 
