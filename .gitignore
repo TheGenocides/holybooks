@@ -1,3 +1,16 @@
 **/__pycache__
 venv/
 test.md
+main.py
+.config
+.build
+.cache
+.upm
+.tmp
+.git
+.replit
+.prettierignore
+.breakpoints
+poetry.lock
+pyproject.toml
+replit.nix

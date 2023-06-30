@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -9,7 +11,7 @@ __all__ = (
     "NumberError",
     "WrongLang",
     "NotFound",
-    "BibleOnly",
+    "TooManyRequests",
 )
 
 
@@ -56,14 +58,12 @@ class WrongLang(Exception):
 
 
 class NotFound(Exception):
-    def __init__(self, book: str, chapter: int, verse: str) -> None:
-        super().__init__(
-            f"Book {book}, Chapter {chapter}, Verse(s) {verse} Wasn't Found."
-        )
+    def __init__(self, msg) -> None:
+        super().__init__(msg)
 
 
-class BibleOnly(Exception):
-    def __init__(self, book: str) -> None:
+class TooManyRequests(Exception):
+    def __init__(self) -> None:
         super().__init__(
-            f"The book {book} wasn't found because its available only in Bible"
+            "Too many requests!"
         )

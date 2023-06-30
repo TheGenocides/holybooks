@@ -1,128 +1,89 @@
-from .errors import ApiError, NotFound
-import aiohttp
-import requests
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
-__all__ = ("ChapterVerse", "Bible")
+from .mixins import Book, Chapter, Verse
+from .translation import BibleTranslation
+
+if TYPE_CHECKING:
+    from typing import List, Optional
+
+__all__ = (
+    "BibleBook", 
+    "BibleChapter", 
+    "BibleVerse"
+)
+
+class BibleBook(Book):
+    def __init__(self, *args, **kwargs):
+        self.id = kwargs.pop("id")
+        self.chapter = kwargs.pop("chapter")
+        super().__init__(*args, **kwargs)
+
+    def __repr__(self):
+        return f"BibleBook(name={self.name}, chapter={self.chapter}, translation={self.translation})"
+
+    def __str__(self):
+        return self.name
+
+class BibleChapter(Chapter):
+    def __init__(self, *args, **kwargs):
+        self.verse = kwargs.pop("verse", None)
+        self.verses = [BibleVerse(**data) for data in kwargs.pop("verses")] if kwargs.get("verses", None) else None
+        self.book_name = kwargs.pop("book_name")
+        self.book_id = kwargs.pop("book_id")
+        self.reference = kwargs.pop("reference", None)
+        self.full_text = kwargs.pop("text", None)
+        if not isinstance(kwargs.get("translation"), BibleTranslation):
+            self.translation = BibleTranslation(**kwargs.pop("translation"))
+            
+        else:
+            self.translation = kwargs.pop("translation")
+        super().__init__(*args, **kwargs)
+
+    def __repr__(self):
+        return f"BibleChapter(number={self.number}, book={self.book.name})"
+
+    def __str__(self):
+        return self.book.name
+        
+    @property
+    def book(self) -> Book:
+        return BibleBook(
+            self.book_name, 
+            translation=self.translation, 
+            chapter=self, 
+            id=self.book_id
+        )
 
 
-def _build_verse(start: int, end: int = None) -> str:
-    return f"{start}{f'-{end}' if end else ''}"
+class BibleVerse(Verse):
+    def __init__(self, *args, **kwargs):
+        self.book_id = kwargs.pop("book_id")
+        self.book_name = kwargs.pop("book_name")
+        self.chapter_number = kwargs.pop("chapter")
+        self.reference = kwargs.pop("reference")
+        self.translation = BibleTranslation(**kwargs.pop("translation"))
+        super().__init__(
+            text=kwargs.get("text"), 
+            number=kwargs.get("verse")
+        )
 
+    def __repr__(self):
+        return f"BibleVerse(number={self.number}, chapter={repr(self.chapter)}, reference={self.reference})"
 
-def _build_citation(book: str, chapter: int, verse: str) -> str:
-    return f"{book} {chapter}:{verse}"
-
-
-class ChapterVerse:
-    def __init__(self, verse: dict) -> None:
-        del verse["book_id"]
-
-        for key, val in verse.items():
-            setattr(self, key, val)
-
-    def __str__(self) -> str:
+    def __str__(self):
         return self.text
 
     @property
-    def citation(self) -> str:
-        return _build_citation(self.book_name, self.chapter, self.verse)
-
-
-class Bible:
-    def __init__(self, book: str) -> None:
-        self.book = book
-        self._session = None
-        self._async_session = None
-        self.json = None
-        self.verses = None
-        self.raw_verse = None
-        self._request = None
-
-    @classmethod
-    def request(
-        cls,
-        book: str,
-        *,
-        chapter: int,
-        starting_verse: int,
-        ending_verse: int = None,
-    ):
-
-        self = cls(book)
-        verse = _build_verse(starting_verse, ending_verse)
-
-        if not self._session:
-            self._session = requests.Session()
-
-        self._request = self._session.get(
-            f"https://bible-api.com/{book}+{chapter}:{verse}"
-        )
-        if self._request.status_code == 404:
-            raise NotFound(book, chapter, verse)
-        elif self._request.status_code > 202:
-            raise ApiError(
-                self._request.status_code,
-                self._request.json().get("error", ""),
-            )
-
-        self.json = self._request.json()
-        self.verses = [ChapterVerse(i) for i in self.json["verses"]]
-
-        return self
-
-    @classmethod
-    async def async_request(
-        cls,
-        book: str,
-        *,
-        chapter: int,
-        starting_verse: int,
-        ending_verse: int = None,
-        loop=None,
-    ):
-
-        self = cls(book)
-        verse = _build_verse(starting_verse, ending_verse)
-
-        if not self._async_session:
-            self._async_session = aiohttp.ClientSession(loop=loop)
-
-        async with self._async_session as session:
-            async with session.get(
-                f"https://bible-api.com/{book}+{chapter}:{verse}"
-            ) as resp:
-                self._request = resp
-                self.json = await resp.json()
-
-        self.verses = [ChapterVerse(i) for i in self.json["verses"]]
-        self.raw_verse = self.json["text"]
-        if self._request.status == 404:
-            raise NotFound(book, chapter, verse)
-        elif self._request.status > 202:
-            raise ApiError(self._request.status, self.json.get("error", ""))
-
-        return self
+    def book(self) -> Book:
+        return self.chapter.book
 
     @property
-    def citation(self) -> str:
-        if not self.json:
-            return None
-        return self.json["reference"]
-
-    @property
-    def translation(self) -> str:
-        if not self.json:
-            return None
-        return self.json["translation_name"]
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        return
-
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, *args):
-        return
+    def chapter(self) -> Book:
+        return BibleChapter(
+            self.chapter_number, 
+            verse=self, 
+            book_name=self.book_name, 
+            book_id=self.book_id,
+            translation=self.translation
+        ) 
