@@ -3,7 +3,7 @@ Change Log
 
 0.1.0 (28/06/2021)
 -------------------
-- The first release where you can actually download it with pip install -U hollybooks
+- The first release where you can actually download it with pip install -U holybooks
 
 0.1.2 (29/06/2021)
 -------------------
