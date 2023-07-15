@@ -8,7 +8,8 @@ from .bible import BibleChapter, BibleVerse
 from .errors import NotFound, TooManyRequests
 
 if TYPE_CHECKING:
-    from typing import Optional
+    from .constants import Number 
+    
 
 SLASH = "/"
 
@@ -27,47 +28,74 @@ class HTTPClient:
                 "quran": lambda translation = self.quran_translation: self.base_quran_url + "/quran" + SLASH + translation,
                 "chapter": lambda chapter, translation = self.quran_translation: self.base_quran_url + "/surah/" + str(chapter) + SLASH + translation,
                 "verse": lambda citation, translation = self.quran_translation: self.base_quran_url + "/ayah/" + citation + SLASH + translation,
-                "search": lambda keyword, surah = "all", translation = self.quran_translation: self.base_quran_url + "/search/" + keyword + SLASH + surah + SLASH + translation  
+                "search": lambda keyword, surah = "all", translation = self.quran_translation: self.base_quran_url + "/search/" + keyword + SLASH + surah + SLASH + translation,
+                "juz": lambda juz, translation = self.quran_translation: self.base_quran_url + "/juz/" + str(juz) + SLASH + translation,
+                "manzil": lambda manzil, translation = self.quran_translation: self.base_quran_url + "/manzil/" + str(manzil) + SLASH + translation,
+                "ruku": lambda ruku, translation = self.quran_translation: self.base_quran_url + "/ruku/" + str(ruku) + SLASH + translation,
+                "page": lambda page, translation = self.quran_translation: self.base_quran_url + "/page/" + str(page) + SLASH + translation,
+                "hizb_quarter": lambda hizb_quarter, translation = self.quran_translation: self.base_quran_url + "/hizbQuarter/" + str(hizb_quarter) + SLASH + translation,
+                "sajda": lambda translation = self.quran_translation: self.base_quran_url + "/sajda/" +  SLASH + translation
             },
             "bible": {
                 "chapter": lambda book, chapter, translation = self.bible_translation: self.base_bible_url + SLASH + book + str(chapter) + f"?translation={translation}",
                 "verse": lambda book, chapter, starting_verse, ending_verse = "", translation = self.bible_translation: self.base_bible_url + SLASH + book + str(chapter) + ":" + str(starting_verse) + ("-" + str(ending_verse) if str(ending_verse) else "") + f"?translation={translation}"
             }
         }
-        self._session = requests.Session()
+        self.__session = requests.Session()
+
+    def _parse_ayahs(self, res):
+        edition = res["data"]["edition"]
+        data = res.get("data")
+        verses = data.get("ayahs") or None
+            
+        if verses:
+            for verse in verses:
+                verse["translation"] = edition
+                surah = verse.get("surah")
+                if surah:
+                    surah["translation"] = edition
+            res["data"]["translation"] = edition
+            return res, 1
+        else:
+            res["data"]["translation"] = edition
+            surah = res.get("data").get("surah")
+            if surah:
+                surah["translation"] = edition
+            return res, 0
+        
 
     def request(
         self,
         url: str,
-        method: str = "get"
+        method: str = "get",
+        *args,
+        **kwargs
     ):
         try: 
-            req = getattr(self._session, method.lower())
+            req = getattr(self.__session, method.lower())
         except AttributeError:
             raise AttributeError(f"Cannot find method: {method}")
 
         url = url.replace(" ", "%20")
         print(url)
-        res = req(url)
-        status_code = res.status_code
-        print(status_code)
-        if not status_code == 200:
-            data = res.json()
-            match res.status_code:
-                case 204:
-                    return None
-                    
-                case 404:
-                    try:
-                        raise NotFound(data["data"])
-                    except KeyError:
-                        raise NotFound(data["error"])
-                    except TypeError:
-                        raise NotFound(data)
+        res = req(url, *args, **kwargs)
+        data = res.json()
+        code = res.status_code
+        print(code)
+        if code == 204:
+            return None
+                
+        elif code == 404:
+            try:
+                raise NotFound(data["data"])
+            except KeyError:
+                raise NotFound(data["error"])
+            except TypeError:
+                raise NotFound(data)
 
-                case 429:
-                    raise TooManyRequests()
-        return res.json()
+        elif code == 429:
+            raise TooManyRequests()
+        return data
 
     def fetch_book(self, book: str = "", *, translation: str = ""):
         if book:
@@ -80,15 +108,15 @@ class HTTPClient:
             res["data"]["translation"] = edition
             for chapter in res["data"]["surahs"]:
                 chapter["translation"] = edition 
-            return Quran(**res)
+            return Quran(**res, session=self.__session)
 
     def fetch_book_chapter(
         self, 
         chapter, 
         *, 
         book: str = "", 
-        beginning_verse: Optional[int, str] = "",
-        ending_verse: Optional[int, str] = "",
+        beginning_verse: Number = "",
+        ending_verse: Number = "",
         translation = ""
     ):
         if book:
@@ -115,19 +143,17 @@ class HTTPClient:
         
         else:
             url = self.urls["quran"]["chapter"](chapter, translation or self.quran_translation)
-            res = self.request(url, "get")
-            edition = res["data"]["edition"]
-            for verse in res["data"]["ayahs"]:
-                verse["translation"] = edition
-            res["data"]["translation"] = edition
-            return Surah(data=res)
+            res = self.request(url)
+            res = self._parse_ayahs(res)[0]
+            return Surah(data=res, session=self.__session)
 
     def fetch_chapter_verse(
         self, 
         book: str = "", 
         *,
         citation: str,
-        translation: str = ""
+        translation: str = "",
+        **kwargs
     ):
         if book:
             try:
@@ -155,6 +181,7 @@ class HTTPClient:
                 return [BibleVerse(**d) for d in data]
             
             else:
+                # if
                 data = data[0]
                 data["reference"] = res["reference"]
                 data["translation"] = {
@@ -166,14 +193,50 @@ class HTTPClient:
                 return BibleVerse(**data)
 
         else:
-            url = self.urls["quran"]["verse"](citation, translation or self.quran_translation)
-            data = self.request(url)
-            edition = data["data"]["edition"]
-            data["data"]["translation"] = edition
-            data["data"]["surah"]["translation"] = edition
-            return Ayah(data=data)
+            params = {}
+            offset = kwargs.pop("offset", None)
+            limit = kwargs.pop("limit", None)
+            juz = kwargs.pop("juz", None)
+            manzil = kwargs.pop("manzil", None)
+            ruku = kwargs.pop("ruku", None)
+            page = kwargs.pop("page", None)
+            hizb_quarter = kwargs.pop("hizb_quarter", None)
+            sajda = kwargs.pop("sajda", None)
+            
+            if juz:
+                url = self.urls["quran"]["juz"](juz, translation or self.quran_translation)
+            
+            elif manzil:
+                url = self.urls["quran"]["manzil"](manzil, translation or self.quran_translation)
 
-    def search(self, keyword: str, chapter: Optional[str, int] = "all", translation: str = ""):
+            elif ruku:
+                url = self.urls["quran"]["ruku"](ruku, translation or self.quran_translation)
+
+            elif page:
+                url = self.urls["quran"]["page"](page, translation or self.quran_translation)
+
+            elif hizb_quarter:
+                url = self.urls["quran"]["hizb_quarter"](hizb_quarter, translation or self.quran_translation)
+
+            elif sajda:
+                url = self.urls["quran"]["sajda"](translation or self.quran_translation)
+                
+            else:
+                url = self.urls["quran"]["verse"](citation, translation or self.quran_translation)
+
+            if offset:
+                params["offset"] = offset
+            
+            if limit:
+                params["limit"] = limit
+                
+            res = self.request(url, params=params)
+            data, check = self._parse_ayahs(res)
+            if not check:
+                return Ayah(data=data, session=self.__session)
+            return [Ayah(data=verse, session=self.__session) for verse in data["data"]["ayahs"]]
+
+    def search(self, keyword: str, chapter: Number = "all", translation: str = ""):
         url = self.urls["quran"]["search"](keyword, chapter, translation or self.quran_translation)
         data = self.request(url)
         verses = data["data"]["matches"]
@@ -181,3 +244,4 @@ class HTTPClient:
             verse["translation"] = verse["edition"]
             verse["surah"]["translation"] = verse["edition"]
         return [Ayah(data=d) for d in verses]
+

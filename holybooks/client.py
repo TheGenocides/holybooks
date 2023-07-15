@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from .http import HTTPClient
 
 if TYPE_CHECKING:
-    from typing import Optional
+    from .constants import Number
 
 __all__ = (
     "Client",
@@ -21,13 +21,24 @@ class Client(HTTPClient):
     def fetch_quran(self, translation: str = ""):
         return self.fetch_book(translation=translation)
     
-    def fetch_surah(self, chapter_number: Optional[int, str]):
-        return self.fetch_book_chapter(str(chapter_number))
+    def fetch_surah(self, chapter: Number, translation: str = ""):
+        return self.fetch_book_chapter(str(chapter), translation=translation)
 
-    def fetch_ayat(self, citation: str, translation: str = ""):
-        return self.fetch_chapter_verse(citation=citation, translation=translation)
+    def fetch_ayah(self, citation: str = "", translation: str = "", *, juz: Number = None, manzil: Number = None, ruku: Number = None, page: Number = None, hizb_quarter: Number = None, sajda: bool = False, offset: Number = None, limit: Number = None):
+        return self.fetch_chapter_verse(
+            citation=citation, 
+            translation=translation,
+            juz=juz,
+            manzil=manzil, 
+            sajda=sajda,
+            ruku=ruku,
+            page=page,
+            hizb_quarter=hizb_quarter,
+            offset=offset,
+            limit=limit
+        )
 
-    def fetch_chapter(self, book: str, chapter: Optional[int, str]):
+    def fetch_chapter(self, book: str, chapter: Number):
         return self.fetch_book_chapter(chapter, book=book)
     
     def fetch_verse(self, book: str, citation: str, translation: str = ""):
