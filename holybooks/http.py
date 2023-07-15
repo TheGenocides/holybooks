@@ -6,12 +6,13 @@ from typing import TYPE_CHECKING
 from .quran import Quran, Surah, Ayah
 from .bible import BibleChapter, BibleVerse
 from .errors import NotFound, TooManyRequests
+from .constants import SLASH
 
 if TYPE_CHECKING:
     from .constants import Number 
     
 
-SLASH = "/"
+
 
 __all__ = (
     "HTTPClient",
@@ -77,11 +78,9 @@ class HTTPClient:
             raise AttributeError(f"Cannot find method: {method}")
 
         url = url.replace(" ", "%20")
-        print(url)
         res = req(url, *args, **kwargs)
         data = res.json()
         code = res.status_code
-        print(code)
         if code == 204:
             return None
                 
