@@ -1,10 +1,12 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+from dataclasses import dataclass
 from .mixins import Book, Chapter, Verse
 from .translation import QuranTranslation
 
 if TYPE_CHECKING:
-    from typing import Union, Optional
+    from typing import Union, Optional, Number
 
 
 __all__ = (
@@ -12,10 +14,18 @@ __all__ = (
     "Surah",
     "Ayah"
 )
+
+@dataclass
+class Sajda:
+    id: Number
+    recommended: bool
+    obligatory: bool
+
 class Quran(Book):
     def __init__(self, *args, **kwargs):
         self.data = kwargs.pop("data")
-        self._surahs = [Surah(data=d) for d in self.data.get("surahs")]
+        self.__session = kwargs.get("session", None)
+        self._surahs = [Surah(data=d, session=self.__session) for d in self.data.get("surahs")]
         super().__init__("Quran", translation=QuranTranslation(**self.data.pop("translation")))
 
     def __repr__(self):
@@ -33,6 +43,7 @@ class Surah(Chapter):
         self.raw_data = kwargs.pop("data")
         self.data = self.raw_data.pop("data", None) or self.raw_data
         self.translation = QuranTranslation(**self.data.get("translation"))
+        self.__session = kwargs.get("session", None)
         super().__init__(self.data.get("number"))
 
     def __repr__(self):
@@ -60,14 +71,15 @@ class Surah(Chapter):
 
     @property
     def ayats(self):
-        return [Ayah(data=data, surah=self) for data in self.data.get("ayahs")]
+        return [Ayah(data=data, surah=self, session=self.__session) for data in self.data.get("ayahs")]
 
 class Ayah(Verse):
     def __init__(self, *args, **kwargs):
         self.raw_data = kwargs.pop("data")
         self.data = self.raw_data.get("data") or self.raw_data
         self.translation = QuranTranslation(**self.data.get("translation"))
-        self._surah = kwargs.pop("surah", None) or Surah(data=self.raw_data.get("surah") or self.data.get("surah"))
+        self.__session = kwargs.get("session")
+        self._surah = kwargs.pop("surah", None) or Surah(data=self.raw_data.get("surah") or self.data.get("surah"), session=self.__session)
         super().__init__(self.data.get("text"), self.data.get("number"))
 
     def __repr__(self):
@@ -75,6 +87,18 @@ class Ayah(Verse):
 
     def __str__(self):
         return self.text
+
+    def download_audio(self, filename: str = ""):
+        if not self.audio:
+            return None
+        res = self.__session.get(self.audio)
+        with open(filename or f"{self.surah.number}:{self.number_in_surah}.mp3", "wb") as f:
+            f.write(res.content)
+        return f
+        
+    @property
+    def audio(self):
+        return self.data.get("audio")
 
     @property
     def number_in_surah(self):
@@ -101,9 +125,10 @@ class Ayah(Verse):
         return self.data.get("hizbQuarter")
 
     @property
-    def sajda(self):
-        return self.data.get("sajda")
-
+    def sajda(self) -> Union[bool, Sajda]:
+        data = self.data.get("sajda")
+        return False if not data else Sajda(**data)
+    
     @property
     def surah(self) -> Surah:
         return self._surah

@@ -3,8 +3,9 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass
 
 if TYPE_CHECKING:
-    from typing import List, Optional
+    from typing import List, Optional, Union
     from .translation import QuranTranslation, BibleTranslation
+    from .constants import Number
 
 __all__ = (
     "Book",
@@ -16,7 +17,7 @@ __all__ = (
 @dataclass
 class Translation:
     name: str
-    id: str
+    id: Number
     
 class Comparable:
     def __eq__(self, other):
@@ -31,7 +32,7 @@ class Book(Comparable):
         self, 
         name: str, 
         *,
-        translation: Optional[Translation, BibleTranslation, QuranTranslation]
+        translation: Union[BibleTranslation, QuranTranslation]
     ):
         self.name = name
         self.translation = translation
@@ -43,7 +44,6 @@ class Chapter(Comparable):
         number: int
     ):
         self.number = number
-        # self.verse = verse
 
 class Verse(Comparable):
     def __init__(
