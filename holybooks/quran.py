@@ -89,12 +89,11 @@ class Ayah(Verse):
     def __str__(self):
         return self.text
 
-    def download_audio(self, filename: str = "") -> Optional[BufferedWriter]:
+    def download_audio(self, filename: str = "", ext: str = "mp3") -> Optional[BufferedWriter]:
         if not self.audio:
             return None
-        res = self.__session.get(self.audio)
-        with open(filename or f"{self.surah.number}:{self.number_in_surah}.mp3", "wb") as f:
-            f.write(res.content)
+        with open(filename + "." +  ext or f"{self.surah.number}:{self.number_in_surah}.{ext}", "wb") as f:
+            f.write(self.__session.get(self.audio).content)
         return f
         
     @property
