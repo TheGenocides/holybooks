@@ -47,7 +47,7 @@ class BibleChapter(Chapter):
         return self.book.name
         
     @property
-    def book(self) -> Book:
+    def book(self) -> BibleBook:
         return BibleBook(
             self.book_name, 
             translation=self.translation, 
@@ -68,18 +68,18 @@ class BibleVerse(Verse):
             number=kwargs.get("verse")
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"BibleVerse(number={self.number}, chapter={repr(self.chapter)}, reference={self.reference})"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.text
 
     @property
-    def book(self) -> Book:
+    def book(self) -> BibleBook:
         return self.chapter.book
 
     @property
-    def chapter(self) -> Book:
+    def chapter(self) -> BibleChapter:
         return BibleChapter(
             self.chapter_number, 
             verse=self, 

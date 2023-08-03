@@ -4,12 +4,13 @@ import requests
 
 from typing import TYPE_CHECKING
 from .quran import Quran, Surah, Ayah
-from .bible import BibleChapter, BibleVerse
+from .bible import Bible, BibleChapter, BibleVerse
 from .errors import NotFound, TooManyRequests
 from .constants import SLASH
 
 if TYPE_CHECKING:
     from .constants import Number 
+    from typing import Tuple, Optional, Union, List
     
 
 
@@ -44,7 +45,7 @@ class HTTPClient:
         }
         self.__session = requests.Session()
 
-    def _parse_ayahs(self, res):
+    def _parse_ayahs(self, res) -> Tuple[dict, int]:
         edition = res["data"]["edition"]
         data = res.get("data")
         verses = data.get("ayahs") or None
@@ -71,7 +72,7 @@ class HTTPClient:
         method: str = "get",
         *args,
         **kwargs
-    ):
+    ) -> dict:
         try: 
             req = getattr(self.__session, method.lower())
         except AttributeError:
@@ -96,7 +97,7 @@ class HTTPClient:
             raise TooManyRequests()
         return data
 
-    def fetch_book(self, book: str = "", *, translation: str = ""):
+    def fetch_book(self, book: str = "", *, translation: str = "") -> Union[Quran, Bible]:
         if book:
             ... #TODO: For bible later!
 
@@ -117,7 +118,7 @@ class HTTPClient:
         beginning_verse: Number = "",
         ending_verse: Number = "",
         translation = ""
-    ):
+    ) -> Union[BibleChapter, Surah]:
         if book:
             url = self.urls["bible"]["chapter"](book, chapter, translation or self.bible_translation)
             res = self.request(url)
@@ -153,7 +154,7 @@ class HTTPClient:
         citation: str,
         translation: str = "",
         **kwargs
-    ):
+    ) -> Union[Union[BibleVerse, List[BibleVerse]], Union[Ayah, List[Ayah]]]:
         if book:
             try:
                 chapter, verse = citation.split(":")
@@ -235,7 +236,7 @@ class HTTPClient:
                 return Ayah(data=data, session=self.__session)
             return [Ayah(data=verse, session=self.__session) for verse in data["data"]["ayahs"]]
 
-    def search(self, keyword: str, chapter: Number = "all", translation: str = ""):
+    def search(self, keyword: str, chapter: Number = "all", translation: str = "") -> List[Ayah]:
         url = self.urls["quran"]["search"](keyword, chapter, translation or self.quran_translation)
         data = self.request(url)
         verses = data["data"]["matches"]

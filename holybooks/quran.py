@@ -6,7 +6,8 @@ from .mixins import Book, Chapter, Verse
 from .translation import QuranTranslation
 
 if TYPE_CHECKING:
-    from typing import Union, Optional, Number
+    from typing import Union, Optional, List, Number
+    from io import BufferedWriter
 
 
 __all__ = (
@@ -35,7 +36,7 @@ class Quran(Book):
         return self.name
         
     @property
-    def surahs(self):
+    def surahs(self) -> Optional[List[Surah]]:
         return self._surahs
 
 class Surah(Chapter):
@@ -50,27 +51,27 @@ class Surah(Chapter):
         return f"Surah(name={self.name}, number={self.number})"
         
     @property
-    def name(self):
+    def name(self) -> str:
         return self.data.get("name")
         
     @property
-    def english_name(self):
+    def english_name(self) -> str:
         return self.data.get("englishName")
         
     @property
-    def english_name_translation(self):
+    def english_name_translation(self) -> str:
         return self.data.get("englishNameTranslation")
 
     @property
-    def revelation_type(self):
+    def revelation_type(self) -> str:
         return self.data.get("revelationType")
 
     @property
-    def number_of_ayats(self):
+    def number_of_ayats(self) -> Number:
         return self.data.get("numberOfAyahs") or len(self.ayats)
 
     @property
-    def ayats(self):
+    def ayats(self) -> List[Ayah]:
         return [Ayah(data=data, surah=self, session=self.__session) for data in self.data.get("ayahs")]
 
 class Ayah(Verse):
@@ -88,7 +89,7 @@ class Ayah(Verse):
     def __str__(self):
         return self.text
 
-    def download_audio(self, filename: str = ""):
+    def download_audio(self, filename: str = "") -> Optional[BufferedWriter]:
         if not self.audio:
             return None
         res = self.__session.get(self.audio)
@@ -97,32 +98,32 @@ class Ayah(Verse):
         return f
         
     @property
-    def audio(self):
+    def audio(self) -> Optional[str]:
         return self.data.get("audio")
 
     @property
-    def number_in_surah(self):
-        return self.data.get("numberInSurah")
+    def number_in_surah(self) -> int:
+        return int(self.data.get("numberInSurah"))
 
     @property
-    def juz(self):
-        return self.data.get("juz")
+    def juz(self) -> int:
+        return int(self.data.get("juz"))
         
     @property
-    def manzil(self):
-        return self.data.get("manzil")
+    def manzil(self) -> int:
+        return int(self.data.get("manzil"))
         
     @property
-    def page(self):
-        return self.data.get("page")
+    def page(self) -> int:
+        return int(self.data.get("page"))
         
     @property
-    def ruku(self):
-        return self.data.get("ruku")
+    def ruku(self) -> int:
+        return int(self.data.get("ruku"))
 
     @property
-    def hizb_quarter(self):
-        return self.data.get("hizbQuarter")
+    def hizb_quarter(self) -> int:
+        return int(self.data.get("hizbQuarter"))
 
     @property
     def sajda(self) -> Union[bool, Sajda]:
