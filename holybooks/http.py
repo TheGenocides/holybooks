@@ -4,7 +4,7 @@ import requests
 
 from typing import TYPE_CHECKING
 from .quran import Quran, Surah, Ayah
-from .bible import Bible, BibleChapter, BibleVerse
+from .bible import BibleBook, BibleChapter, BibleVerse
 from .errors import NotFound, TooManyRequests
 from .constants import SLASH
 
@@ -97,7 +97,7 @@ class HTTPClient:
             raise TooManyRequests()
         return data
 
-    def fetch_book(self, book: str = "", *, translation: str = "") -> Union[Quran, Bible]:
+    def fetch_book(self, book: str = "", *, translation: str = "") -> Union[Quran, BibleBook]:
         if book:
             ... #TODO: For bible later!
 
