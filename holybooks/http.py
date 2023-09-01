@@ -3,14 +3,12 @@ from __future__ import annotations
 import requests
 
 from typing import TYPE_CHECKING
-from .quran import Quran, Surah, Ayah
-from .bible import BibleBook, BibleChapter, BibleVerse
 from .errors import NotFound, TooManyRequests
 from .constants import SLASH
 
 if TYPE_CHECKING:
-    from .constants import Number 
-    from typing import Tuple, Optional, Union, List
+    from typing import Tuple, Union, List
+    from .constants import NUMBER
     
 
 
@@ -20,7 +18,7 @@ __all__ = (
 )
 
 class HTTPClient:
-    def __init__(self, *, quran_translation = "en.asad", bible_translation = "kjv"):
+    def __init__(self, *, quran_translation = "en.asad", bible_translation = "kjv") -> None:
         self.quran_translation = quran_translation
         self.bible_translation = bible_translation
         self.base_quran_url = "http://api.alquran.cloud/v1"
@@ -81,11 +79,9 @@ class HTTPClient:
         url = url.replace(" ", "%20")
         res = req(url, *args, **kwargs)
         data = res.json()
-        code = res.status_code
-        if code == 204:
-            return None
-                
-        elif code == 404:
+        code = res.status_code    
+        
+        if code == 404:
             try:
                 raise NotFound(data["data"])
             except KeyError:
@@ -97,28 +93,27 @@ class HTTPClient:
             raise TooManyRequests()
         return data
 
-    def fetch_book(self, book: str = "", *, translation: str = "") -> Union[Quran, BibleBook]:
+    def fetch_book(self, book: str = "", *, translation: str = "") -> dict:
         if book:
             ... #TODO: For bible later!
 
-        else:
-            url = self.urls["quran"]["quran"](translation if translation else self.quran_translation)
-            res = self.request(url)
-            edition = res["data"]["edition"]
-            res["data"]["translation"] = edition
-            for chapter in res["data"]["surahs"]:
-                chapter["translation"] = edition 
-            return Quran(**res, session=self.__session)
+        url = self.urls["quran"]["quran"](translation or self.quran_translation)
+        res = self.request(url)
+        edition = res["data"]["edition"]
+        res["data"]["translation"] = edition
+        for chapter in res["data"]["surahs"]:
+            chapter["translation"] = edition 
+        return {**res, 'session': self.__session}
 
     def fetch_book_chapter(
         self, 
         chapter, 
         *, 
         book: str = "", 
-        beginning_verse: Number = "",
-        ending_verse: Number = "",
+        beginning_verse: NUMBER = "",
+        ending_verse: NUMBER = "",
         translation = ""
-    ) -> Union[BibleChapter, Surah]:
+    ) -> dict:
         if book:
             url = self.urls["bible"]["chapter"](book, chapter, translation or self.bible_translation)
             res = self.request(url)
@@ -139,13 +134,13 @@ class HTTPClient:
             del res["translation_id"]
             del res["translation_note"]
             res["number"] = _verse["chapter"]
-            return BibleChapter(**res)
+            return res
         
         else:
             url = self.urls["quran"]["chapter"](chapter, translation or self.quran_translation)
             res = self.request(url)
             res = self._parse_ayahs(res)[0]
-            return Surah(data=res, session=self.__session)
+            return {**res, "session": self.__session}
 
     def fetch_chapter_verse(
         self, 
@@ -154,7 +149,7 @@ class HTTPClient:
         citation: str,
         translation: str = "",
         **kwargs
-    ) -> Union[Union[BibleVerse, List[BibleVerse]], Union[Ayah, List[Ayah]]]:
+    ) -> Union[dict, List[dict]]:
         if book:
             try:
                 chapter, verse = citation.split(":")
@@ -178,7 +173,7 @@ class HTTPClient:
                         "note": res["translation_note"]
                     }
                     
-                return [BibleVerse(**d) for d in data]
+                return [{**d} for d in data]
             
             else:
                 # if
@@ -190,7 +185,7 @@ class HTTPClient:
                     "note": res["translation_note"]
                 }
                 
-                return BibleVerse(**data)
+                return data
 
         else:
             params = {}
@@ -233,15 +228,14 @@ class HTTPClient:
             res = self.request(url, params=params)
             data, check = self._parse_ayahs(res)
             if not check:
-                return Ayah(data=data, session=self.__session)
-            return [Ayah(data=verse, session=self.__session) for verse in data["data"]["ayahs"]]
+                return {**data, "session": self.__session}
+            return [{**ayah, "session": self.__session} for ayah in data ["data"]["ayahs"]]
 
-    def search(self, keyword: str, chapter: Number = "all", translation: str = "") -> List[Ayah]:
+    def search(self, keyword: str, chapter: NUMBER = "all", translation: str = "") -> List[dict]:
         url = self.urls["quran"]["search"](keyword, chapter, translation or self.quran_translation)
         data = self.request(url)
         verses = data["data"]["matches"]
         for verse in verses:
             verse["translation"] = verse["edition"]
             verse["surah"]["translation"] = verse["edition"]
-        return [Ayah(data=d) for d in verses]
-
+        return [{**ayah, "session": self.__session} for ayah in verses]

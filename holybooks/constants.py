@@ -1,9 +1,9 @@
 from typing import Union, Optional
 
 __all__ = (
-    "Number",
+    "NUMBER",
     "SLASH"
 )
 
-Number = Optional[Union[str, int]]
+NUMBER = Optional[Union[str, int]]
 SLASH = "/"
