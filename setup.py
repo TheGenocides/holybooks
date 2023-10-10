@@ -13,9 +13,9 @@ classifiers = [
 
 setup(
     name="holybooks",
-    version="0.1.2",
+    version="1.0.0",
     url="https://github.com/TheGenocides/holybooks",
-    description="An Api Wrapper for extracting info from: quran api and bible api.",
+    description="An Api Wrapper for extracting info from the quran api and bible api.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="TheGenocide",
@@ -32,5 +32,5 @@ setup(
         "torah",
     ],
     packages=find_packages(),
-    install_requires=["requests", "aiohttp"],
+    install_requires=["requests"],
 )

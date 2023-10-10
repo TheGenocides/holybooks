@@ -7,7 +7,7 @@ from typing import NamedTuple, Literal
 
 
 __title__ = "holybooks"
-__version__ = "1.0.0b1"
+__version__ = "1.0.0"
 __author__ = "TheGenocides"
 __license__ = "MIT"
 __copyright__ = "Copyright 2021-present TheGenocides"
@@ -21,7 +21,7 @@ class VersionInfo(NamedTuple):
     serial: int
 
 
-version_info: VersionInfo = VersionInfo(major=1, minor=0, micro=0, releaselevel="beta", serial=1)
+version_info: VersionInfo = VersionInfo(major=1, minor=0, micro=0, releaselevel="final", serial=0)
 
 assert version_info.releaselevel in (
     "alpha",

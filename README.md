@@ -23,7 +23,7 @@ client = Client(
 
 client.fetch_ayah("2:255", "en.pickthall") #Retrives a verse from the Quran api. This will get chapter 2, verse 255. The second argument is the translation, if None specified the default translation is your quran_translation in your client instance.
 
-client.fetch_verse("Genesis", "1:10", "kjv") #Retrives verses from the Bible API. This will get Genesis chapter 1, verse 1-10. The second argument is the translation, if None specified the default translation is your quran_translation in your client instance. 
+client.fetch_verse("Genesis", "1:10", "kjv") #Retrives verses from the Bible API. This will get Genesis chapter 1, verse 1-10. The second argument is the translation, if None specified the default translation is your bible_translation in your client instance. 
 ```
 
 ## API's That I Used
